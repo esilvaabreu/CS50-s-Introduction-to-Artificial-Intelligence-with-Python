@@ -91,7 +91,7 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    if source = target:
+    if source == target:
         return []
     # Keep track of number of states explored
     num_explored = 0
