@@ -88,7 +88,7 @@ def terminal(board):
     if len(actions(board)) == 0 or winner(board) is not None:
         return True
     else:
-        False
+        return False
 
 
 def utility(board):
