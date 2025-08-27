@@ -180,26 +180,18 @@ class MinesweeperAI():
         Marks a cell as a mine, and updates all knowledge
         to mark that cell as a mine as well.
         """
-        if cell in self.mines:
-            return
         self.mines.add(cell)
-        # Update all sentences that contain this cell
         for sentence in self.knowledge:
-            if cell in sentence.cells:
-                sentence.mark_mine(cell)
+            sentence.mark_mine(cell)
 
     def mark_safe(self, cell):
         """
         Marks a cell as safe, and updates all knowledge
         to mark that cell as safe as well.
         """
-        if cell in self.safes:
-            return
         self.safes.add(cell)
-        # Update all sentences that contain this cell
         for sentence in self.knowledge:
-            if cell in sentence.cells:
-                sentence.mark_safe(cell)
+            sentence.mark_safe(cell)
 
     def update_knowledge(self):
         """
@@ -262,30 +254,40 @@ class MinesweeperAI():
         safe cell, how many neighboring cells have mines in them.
         """
 
+        # 1) mark the cell as a move that has been made
         self.moves_made.add(cell)
+
+        # 2) mark the cell as safe
         self.mark_safe(cell)
 
-        # Get all neighbors
-        neighbors = set()
+        # 3) add a new sentence to the AI's knowledge base based on the value of `cell` and `count`
+        new_sentence = Sentence(set(), count)
+
+        # Loop through the boundaries of the cell
         for i in range(cell[0] - 1, cell[0] + 2):
             for j in range(cell[1] - 1, cell[1] + 2):
+
+                # Ignore the cell itself
                 if (i, j) == cell:
                     continue
+
+                # Add the boundaries of the cell to the sentence
                 if 0 <= i < self.height and 0 <= j < self.width:
-                    neighbors.add((i, j))
+                    new_sentence.cells.add((i, j))
 
-        # Remove known mines and safe moves
-        unknown_neighbors = neighbors - self.moves_made - self.mines
+        # Check for known mines and safe cells
+        for cell in new_sentence.cells.copy():
+            if cell in self.mines:
+                new_sentence.cells.remove(cell)
+                new_sentence.count -= 1
 
-        # Adjust count for known mines in neighborhood
-        known_mines_in_neighbors = neighbors & self.mines
-        adjusted_count = count - len(known_mines_in_neighbors)
+            if cell in self.safes:
+                new_sentence.cells.remove(cell)
 
-        # Only create sentence if there are unknown neighbors
-        if unknown_neighbors:
-            new_sentence = Sentence(unknown_neighbors, adjusted_count)
-            self.knowledge.append(new_sentence)
+        self.knowledge.append(new_sentence)
 
+        # 4) mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
+        # 5) loop through all the sentences and create new ones based if one is a subset of the other
         self.update_knowledge()
 
     def make_safe_move(self):
