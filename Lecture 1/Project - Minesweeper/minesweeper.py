@@ -238,13 +238,14 @@ class MinesweeperAI():
                             other_sentence in self.knowledge and
                             sentence in self.knowledge):
 
+                        # Create new cells and count based on the inference
                         new_cells = sentence.cells - other_sentence.cells
                         new_count = sentence.count - other_sentence.count
 
                         if new_cells and new_count >= 0:
-                            self.knowledge.remove(other_sentence)
-                            self.knowledge.remove(sentence)
-                            self.knowledge.append(Sentence(new_cells, new_count))
+                            # Update the sentence
+                            sentence.cells = new_cells
+                            sentence.count = new_count
                             changed = True
                             break  # Restart while loop
 
@@ -284,7 +285,7 @@ class MinesweeperAI():
             if cell in self.safes:
                 new_sentence.cells.remove(cell)
 
-        self.knowledge.append(new_sentence)
+        self.knowledge.append((new_sentence))
 
         # 4) mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
         # 5) loop through all the sentences and create new ones based if one is a subset of the other
